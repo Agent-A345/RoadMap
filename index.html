@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RoadMap — Track Your Learning Journey</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <span class="logo-mark">▣</span>
+        <span class="logo-text">RoadMap</span>
+      </div>
+      <button class="theme-toggle" id="themeToggle" title="Toggle theme">
+        <span class="theme-icon">◐</span>
+      </button>
+    </div>
+
+    <div class="sidebar-search">
+      <input type="text" id="searchInput" placeholder="Search roadmaps…" autocomplete="off" />
+      <span class="search-icon">⌕</span>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="section-label">ROADMAPS</div>
+      <div id="roadmapList" class="roadmap-list"></div>
+    </div>
+
+    <div class="sidebar-analytics" id="sidebarAnalytics">
+      <div class="section-label">ANALYTICS</div>
+      <div class="analytics-grid">
+        <div class="analytic-card">
+          <div class="analytic-val" id="totalCompleted">0</div>
+          <div class="analytic-label">Completed</div>
+        </div>
+        <div class="analytic-card">
+          <div class="analytic-val" id="totalInProgress">0</div>
+          <div class="analytic-label">In Progress</div>
+        </div>
+        <div class="analytic-card">
+          <div class="analytic-val" id="totalRoadmaps">0</div>
+          <div class="analytic-label">Roadmaps</div>
+        </div>
+        <div class="analytic-card">
+          <div class="analytic-val" id="weeklyProgress">0</div>
+          <div class="analytic-label">This Week</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <button class="btn-create" id="openCreateModal">
+        <span>＋</span> New Roadmap
+      </button>
+    </div>
+  </aside>
+
+  <!-- MOBILE TOGGLE -->
+  <button class="mobile-menu-toggle" id="mobileMenuToggle">☰</button>
+
+  <!-- MAIN CONTENT -->
+  <main class="main" id="main">
+
+    <!-- DASHBOARD VIEW -->
+    <div class="view" id="dashboardView">
+      <div class="view-header">
+        <div>
+          <h1 class="view-title">Dashboard</h1>
+          <p class="view-subtitle">Track your learning journeys</p>
+        </div>
+        <div id="reminderBadge" class="reminder-badge" style="display:none"></div>
+      </div>
+      <div id="dashboardGrid" class="dashboard-grid"></div>
+      <div id="emptyDashboard" class="empty-state">
+        <div class="empty-icon">◎</div>
+        <div class="empty-title">No roadmaps yet</div>
+        <div class="empty-sub">Create your first learning roadmap to get started.</div>
+        <button class="btn-primary" id="emptyCreateBtn">Create Roadmap</button>
+      </div>
+    </div>
+
+    <!-- ROADMAP DETAIL VIEW -->
+    <div class="view hidden" id="roadmapView">
+      <div class="view-header">
+        <div class="view-header-left">
+          <button class="btn-back" id="backBtn">← Back</button>
+          <div>
+            <h1 class="view-title" id="roadmapTitle">Roadmap</h1>
+            <p class="view-subtitle" id="roadmapCategory"></p>
+          </div>
+        </div>
+        <div class="view-header-actions">
+          <button class="btn-icon" id="exportJsonBtn" title="Export JSON">⇣ JSON</button>
+          <button class="btn-icon" id="printBtn" title="Print">⎙ Print</button>
+          <button class="btn-icon danger" id="deleteRoadmapBtn" title="Delete Roadmap">✕ Delete</button>
+        </div>
+      </div>
+
+      <!-- PROGRESS HEADER -->
+      <div class="progress-header" id="progressHeader">
+        <div class="progress-bar-wrap">
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" id="progressBarFill"></div>
+          </div>
+          <span class="progress-pct" id="progressPct">0%</span>
+        </div>
+        <div class="progress-stats" id="progressStats"></div>
+      </div>
+
+      <!-- RECOMMENDATIONS -->
+      <div class="recommendations" id="recommendationsPanel" style="display:none">
+        <div class="rec-label">▸ Suggested next steps</div>
+        <div class="rec-chips" id="recChips"></div>
+      </div>
+
+      <!-- MILESTONE TIMELINE -->
+      <div class="timeline-container">
+        <div class="timeline-controls">
+          <select id="filterCategory" class="filter-select">
+            <option value="">All Categories</option>
+            <option value="Beginner">Beginner</option>
+            <option value="Intermediate">Intermediate</option>
+            <option value="Advanced">Advanced</option>
+          </select>
+          <button class="btn-add-milestone" id="openAddMilestone">＋ Add Milestone</button>
+        </div>
+        <div id="milestoneTimeline" class="milestone-timeline"></div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- MODAL: CREATE ROADMAP -->
+  <div class="modal-overlay hidden" id="createRoadmapModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title">New Roadmap</h2>
+        <button class="modal-close" data-modal="createRoadmapModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <label class="form-label">Title<span class="required">*</span></label>
+        <input type="text" id="newRoadmapTitle" class="form-input" placeholder="e.g. Cybersecurity Roadmap" />
+
+        <label class="form-label">Category</label>
+        <select id="newRoadmapCategory" class="form-input">
+          <option value="Development">Development</option>
+          <option value="Security">Security</option>
+          <option value="Data Science">Data Science</option>
+          <option value="Design">Design</option>
+          <option value="DevOps">DevOps</option>
+          <option value="Other">Other</option>
+        </select>
+
+        <label class="form-label">Description</label>
+        <textarea id="newRoadmapDesc" class="form-input form-textarea" placeholder="What will you learn?"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" data-modal="createRoadmapModal">Cancel</button>
+        <button class="btn-primary" id="confirmCreateRoadmap">Create Roadmap</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ADD MILESTONE -->
+  <div class="modal-overlay hidden" id="addMilestoneModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title">Add Milestone</h2>
+        <button class="modal-close" data-modal="addMilestoneModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <label class="form-label">Title<span class="required">*</span></label>
+        <input type="text" id="milestoneTitle" class="form-input" placeholder="e.g. Networking Basics" />
+
+        <label class="form-label">Description</label>
+        <textarea id="milestoneDesc" class="form-input form-textarea" placeholder="What does this cover?" rows="2"></textarea>
+
+        <label class="form-label">Notes / Resources</label>
+        <textarea id="milestoneNotes" class="form-input form-textarea" placeholder="e.g. Watch lecture 5, Read RFC 793…" rows="2"></textarea>
+
+        <div class="form-row">
+          <div class="form-col">
+            <label class="form-label">Category</label>
+            <select id="milestoneCat" class="form-input">
+              <option value="Beginner">Beginner</option>
+              <option value="Intermediate">Intermediate</option>
+              <option value="Advanced">Advanced</option>
+            </select>
+          </div>
+          <div class="form-col">
+            <label class="form-label">Target Date</label>
+            <input type="date" id="milestoneDeadline" class="form-input" />
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" data-modal="addMilestoneModal">Cancel</button>
+        <button class="btn-primary" id="confirmAddMilestone">Add Milestone</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: EDIT MILESTONE -->
+  <div class="modal-overlay hidden" id="editMilestoneModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title">Edit Milestone</h2>
+        <button class="modal-close" data-modal="editMilestoneModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="editMilestoneId" />
+        <label class="form-label">Title<span class="required">*</span></label>
+        <input type="text" id="editMilestoneTitle" class="form-input" />
+
+        <label class="form-label">Description</label>
+        <textarea id="editMilestoneDesc" class="form-input form-textarea" rows="2"></textarea>
+
+        <label class="form-label">Notes / Resources</label>
+        <textarea id="editMilestoneNotes" class="form-input form-textarea" rows="2"></textarea>
+
+        <div class="form-row">
+          <div class="form-col">
+            <label class="form-label">Category</label>
+            <select id="editMilestoneCat" class="form-input">
+              <option value="Beginner">Beginner</option>
+              <option value="Intermediate">Intermediate</option>
+              <option value="Advanced">Advanced</option>
+            </select>
+          </div>
+          <div class="form-col">
+            <label class="form-label">Target Date</label>
+            <input type="date" id="editMilestoneDeadline" class="form-input" />
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" data-modal="editMilestoneModal">Cancel</button>
+        <button class="btn-primary" id="confirmEditMilestone">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast" class="toast"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
